@@ -1,0 +1,24 @@
+{
+  "name": "proyectobackend1",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "backend",
+    "nodejs",
+    "express",
+    "servidor web",
+    "basededatos"
+  ],
+  "author": "Carolina Gonzalez",
+  "license": "ISC",
+  "description": "Servidor backend diseñado para aplicaciones de comercio electrónico, el que proporciona servicios para gestión de productos y carritos de compra dinámicos, con las características de persistencia de datos y autenticación segura ",
+  "type": "module",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

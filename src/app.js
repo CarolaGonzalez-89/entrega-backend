@@ -1,88 +1,79 @@
 import express from "express";
-import ProductManager from "./ProductManager.js";
-import CartManager from "./CartManager.js";
+import productsRoute from "./routes/products.routes.js";
+import cartsRoute from "./routes/carts.routes.js";
+import __dirname from "./utilities.js";
+import handlebars from "express-handlebars";
+import viewsRouter from "./routes/views.routes.js"
+import ProductManager from "./dao/ProductManager.js";
+import { Server } from "socket.io";
+
 
 const app = express();
 const productManager = new ProductManager();
-const cartManager = new CartManager();
+
+
+app.engine("handlebars", handlebars.engine ());
+app.set ("view engine", "handlebars");
+app.set ("views", __dirname +"/views");
+
+app.use("/", viewsRouter);
+
 app.use(express.json());
+app.use(express.static(__dirname + "/public"))
 
 // ---------------------------------Productos--------------------------------------------
-
-// Devuelve todos los productos
-app.get("/api/products", async (req, res) => {
-  const products = await productManager.getAllProducts();
-  res.json(products);
-});
-
-// Devuelve un producto definido según el id recibido
-app.get("/api/products/:pid", async (req, res) => {
-  const pid = req.params.pid;
-  const product = await productManager.findProductById(Number(pid));
-  if (!product) {
-    return res.status(404).json({ error: "Producto no encontrado" });
-  }
-  res.json(product);
-});
-
-// Crea producto
-app.post("/api/products", async (req, res) => {
-  const newProduct = req.body;
-  const createdProduct = await productManager.addNewProduct(newProduct);
-  res.status(201).json(createdProduct);
-});
-
-// Actualiza producto por su id
-app.put("/api/products/:pid", async (req, res) => {
-  const pid = Number(req.params.pid);
-  const updatedFields = req.body;
-  const updatedProduct = await productManager.modifyProduct(pid, updatedFields);
-  if (!updatedProduct) {
-    return res.status(404).json({ error: "Producto no encontrado" });
-  }
-  res.json(updatedProduct);
-});
-
-// Elimina  producto por su id
-app.delete("/api/products/:pid", async (req, res) => {
-  const pid = Number(req.params.pid);
-  const deletedProduct = await productManager.removeProduct(pid);  
-  if (!deletedProduct) {
-    return res.status(404).json({ error: "Producto no encontrado" });
-  }  
-  res.json(deletedProduct);
-});
-
+app.use("/api/products", productsRoute);
 // ---------------------------------Carrito--------------------------------------------
+app.use("/api/carts", cartsRoute);
 
-// Crea un nuevo carrito
-app.post("/api/carts", async (req, res) => {
-  const newCart = await cartManager.createCart();
-  res.status(201).json(newCart);
+/* DETERMINACION DE SERVIDOR HTTP PARA QUE PUEDA INICIAR EL PROTOCOLO DE WEBSOCKETS*/
+const httpServer = app.listen(8080, () => {
+  console.log("Server funcionando");
 });
 
-// Agrega un producto a un carrito
-app.post("/api/carts/:cid/product/:pid", async (req, res) => {
-  const cid = Number(req.params.cid); // id del carrito
-  const pid = Number(req.params.pid); // id del producto
+/*  INICIA PROTOCOLO DE WEBSOCKETS DESDE EL LADO DEL SERVIDOR */
+export const socketServer = new Server(httpServer);
 
-  const updatedCart = await cartManager.addProductToCart(cid, pid);
-  if (!updatedCart) {
-    return res.status(404).json({ error: "Carrito no encontrado" });
+socketServer.on("connection", async (socket) => {
+  /* CLIENTE CONECTADO*/
+  console.log("Cliente conectado");
+
+  try {
+    /* OBTENER LISTA DE PRODUCTOS */
+    const products = await productManager.getAllProducts() ;  
+
+    /* ENVIAR AL CLIENTE */
+    socket.emit("productosDisponibles", products);
+  } catch (error) {
+    console.error("ERROR AL LEER PRODUCTOS:", error);
+    socket.emit("productosDisponibles", []); 
   }
-  res.json(updatedCart);
-});
 
-// Devuelve los productos de un carrito por su id
-app.get("/api/carts/:cid", async (req, res) => {
-  const cid = Number(req.params.cid); // id del carrito
-  const cart = await cartManager.findCartById(cid);
-  if (!cart) {
-    return res.status(404).json({ error: "Carrito no encontrado" });
-  }
-  res.json(cart.products);
-});
+  /* ESCUCHAR NUEVO PRODUCTO */
+  socket.on("crearProducto", async (productData) => {
+    try {
+      await productManager.addNewProduct(productData);
+      const updatedProducts = await productManager.getAllProducts();
+      socketServer.emit("productosDisponibles", updatedProducts);
+    } catch (error) {
+      console.error("Error al agregar producto:", error);
+      socket.emit("errorCrearProducto", "No se pudo agregar el producto");
+    }
+  }); /* FIN ESCUCHA NUEVO PRODUCTO */
 
-app.listen(8080, () => {
-  console.log("Server levantado en puerto 8080");
-});
+  socket.on("eliminarProducto", async (pid) => {
+    try {
+      /* ELIMINAR PRODUCTO EN products.json */
+      await productManager.removeProduct(Number(pid));
+      /* OBTENER LISTA ACTUALIZADA DE PRODUCTOS */
+      const updatedProducts = await productManager.ggetAllProducts();
+      /* ENVIAR LISTA ACTUALIZADA A CLIENTES */
+      socketServer.emit("productosActuales", updatedProducts);
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+      socket.emit("errorEliminarProducto", "No se pudo eliminar el producto");
+    }
+  }); /* ELIMINAR PRODUCTO  */
+
+
+}); 

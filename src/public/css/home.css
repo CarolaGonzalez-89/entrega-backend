@@ -1,0 +1,67 @@
+/* CONTENEDOR GENERAL */
+
+.products-section {
+  padding: 40px;
+}
+
+.products-title {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* GRID DE PRODUCTOS */
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+/* CARD DE PRODUCTO */
+
+.product-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s;
+}
+
+.product-card:hover {
+  transform: scale(1.03);
+}
+
+/* IMAGEN */
+
+.product-images {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.product-img {
+  width: 100%;
+  max-width: 200px;
+  height: 150px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+/* INFO */
+
+.product-title {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.product-description {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.product-price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #27ae60;
+}

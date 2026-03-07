@@ -1,0 +1,47 @@
+<link rel="stylesheet" href="/css/main.css" />
+<link rel="stylesheet" href="/css/home.css" />
+
+<section class="products-section">
+
+  <h1 class="products-title">Mis Productos</h1>
+
+  <div class="products-grid">
+
+    {{#each products}}
+
+      {{#if this.status}}
+
+        <div class="product-card">
+
+          <div class="product-images">
+            {{#each this.thumbnails}}
+              <img src="{{this}}" alt="Imagen Producto" class="product-img" />
+            {{/each}}
+          </div>
+
+          <div class="product-info">
+
+            <h3 class="product-title">
+              {{this.title}}
+            </h3>
+
+            <p class="product-description">
+              {{this.description}}
+            </p>
+
+            <p class="product-price">
+              $
+              {{this.price}}
+            </p>
+
+          </div>
+
+        </div>
+
+      {{/if}}
+
+    {{/each}}
+
+  </div>
+
+</section>

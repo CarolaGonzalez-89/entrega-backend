@@ -19,6 +19,8 @@
   "description": "Servidor backend diseñado para aplicaciones de comercio electrónico, el que proporciona servicios para gestión de productos y carritos de compra dinámicos, con las características de persistencia de datos y autenticación segura ",
   "type": "module",
   "dependencies": {
-    "express": "^5.2.1"
+    "express": "^5.2.1",
+    "express-handlebars": "^8.0.3",
+    "socket.io": "^4.8.3"
   }
 }

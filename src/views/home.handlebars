@@ -4,44 +4,40 @@
 <section class="products-section">
 
   <h1 class="products-title">Mis Productos</h1>
-
   <div class="products-grid">
-
-    {{#each products}}
-
+    {{#each pagination.docs}}
       {{#if this.status}}
-
         <div class="product-card">
-
           <div class="product-images">
             {{#each this.thumbnails}}
               <img src="{{this}}" alt="Imagen Producto" class="product-img" />
             {{/each}}
           </div>
-
           <div class="product-info">
-
             <h3 class="product-title">
               {{this.title}}
             </h3>
-
             <p class="product-description">
               {{this.description}}
             </p>
-
             <p class="product-price">
               $
               {{this.price}}
             </p>
-
           </div>
-
         </div>
-
       {{/if}}
-
     {{/each}}
+  </div>
 
+  <div class="pagination">
+    {{#if pagination.hasPrevPage}}
+      <a href="/?page={{pagination.prevPage}}">Productos anteriores</a>
+    {{/if}}
+    <span>{{pagination.page}}</span>
+    {{#if pagination.hasNextPage}}
+      <a href="/?page={{pagination.nextPage}}">Más productos</a>
+    {{/if}}
   </div>
 
 </section>

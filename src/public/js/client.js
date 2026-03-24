@@ -27,7 +27,7 @@ socket.on("productosDisponibles", (products) => {
     <div class="product-details">
 
       <span class="product-id">
-        ID: ${product.id}
+        ID: ${product._id}
       </span>
 
       <span class="product-code">
